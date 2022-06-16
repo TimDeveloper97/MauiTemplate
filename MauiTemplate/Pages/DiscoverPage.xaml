@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             
+             xmlns:pages="clr-namespace:MauiTemplate.Pages"
+             xmlns:res="clr-namespace:MauiTemplate.Resources.Strings"
+             xmlns:controls="clr-namespace:MauiTemplate.Controls"
+             xmlns:root="clr-namespace:MauiTemplate"
+             xmlns:vms="clr-namespace:MauiTemplate.ViewModels"
+             xmlns:v="clr-namespace:MauiTemplate.Views"
+             x:DataType="vms:DiscoverViewModel"
+             
+             x:Class="MauiTemplate.Pages.DiscoverPage"
+             Title="DiscoverPage">
+    <ContentPage.BindingContext>
+        <vms:DiscoverViewModel/>
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <Style x:Key="ListTitleStyle"
+               TargetType="Label"
+               BasedOn="{OnIdiom Default={StaticResource H5LabelStyle}, Phone={StaticResource H6LabelStyle}}">
+            <Setter Property="Padding"
+                    Value="{OnIdiom Desktop='48,0,0,12', Phone='16,0,0,0'}" />
+        </Style>
+    </ContentPage.Resources>
+    <Grid Background="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}">
+        <StackLayout Margin="10,0">
+            <controls:TemplateControl TextToSearch="{Binding Text, Mode=OneWayToSource}"
+                                    SearchCommand="{Binding SearchCommand}"
+                                    SemanticProperties.Description="{x:Static res:AppResource.wellcome}"
+                                    VerticalOptions="Start" />
+        </StackLayout>
+        <CollectionView ItemsSource="{Binding PodcastsGroup}"
+                        Margin="{OnIdiom Desktop='10,60,10,0', Phone='10,50,10,0', Default='10,50,10,0'}"
+                        SelectionMode="None"
+                        IsGrouped="True">
+            <CollectionView.ItemsLayout>
+                <OnPlatform x:TypeArguments="ItemsLayout">
+                    <!-- On MacOS and iOS does not load any items with IsGrouped=True + GridItemsLayout -->
+                    <!-- https://github.com/dotnet/maui/issues/6848 -->
+                    <!-- Temporary workaround: On MacOS and iOS, not to use GridItemLayout-->
+                    <On Platform="Android,UWP">
+                        <GridItemsLayout Orientation="Vertical"
+                                 Span="{OnIdiom Phone=2, Tablet=3, Desktop=3, Default=3}"
+                                 HorizontalItemSpacing="5"
+                                 VerticalItemSpacing="5" />
+                    </On>
+                </OnPlatform>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <v:ShowItemView SubscriptionCommand="{Binding SubscribeCommand, Source={RelativeSource AncestorType={x:Type vms:DiscoverViewModel}}}"
+                                       SubscriptionCommandParameter="{Binding }" 
+                                       SemanticProperties.Description="{x:Static res:AppResource.wellcome}"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="{x:Null}">
+                    <Label Text="{Binding Name}"
+                           Style="{StaticResource ListTitleStyle}"
+                           FontSize="32" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
